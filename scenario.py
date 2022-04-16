@@ -1,5 +1,5 @@
 import numpy as np
-from pettingzoo.mpe._mpe_utils.core import Agent, World
+from pettingzoo.mpe._mpe_utils.core import Agent,Landmark, World
 from pettingzoo.mpe._mpe_utils.scenario import BaseScenario
 
 class Scenario(BaseScenario):
