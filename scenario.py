@@ -4,31 +4,44 @@ from pettingzoo.mpe._mpe_utils.scenario import BaseScenario
 
 class Scenario(BaseScenario):
     def __init__(self):
+        self.num_good = 10
+        self.num_advr = 1
+        self.num_obst = 2
+        
         self.good_size = 0.05
         self.advr_size = 0.075
         self.obst_size = 0.2
+        
         self.advr_accel = 3.0
         self.advr_accel = 3.0
         self.good_accel = 4.0
+        
         self.advr_max_speed = 1.0
         self.good_max_speed = 1.3
+        
         self.good_color = np.array([0.35, 0.85, 0.35])
         self.obst_color = np.array([0.25, 0.25, 0.25])
         self.advr_color = np.array([0.85, 0.35, 0.35])
+        
         self.good_spawn_range = 1
         self.advr_spawn_range = 1
         self.obst_spawn_range = 0.9
         
+        self.observation_resolution = 6
+        res = self.observation_resolution
+        self.col_lines = np.array([(np.cos(2 * np.pi * i / res),np.sin(2 * np.pi * i / res)) 
+                                   for i in range(res)],dtype=np.float16)
+        self.good_col_range = 0.2
+        self.advr_col_range = 0.2
         
-        
-    def make_world(self, num_good=1, num_adversaries=3, num_obstacles=2):
+    def make_world(self):
         world = World()
         # set any world properties first
         world.dim_c = 2
-        num_good_agents = num_good
-        num_adversaries = num_adversaries
+        num_good_agents = self.num_good
+        num_adversaries = self.num_advr
         num_agents = num_adversaries + num_good_agents
-        num_landmarks = num_obstacles
+        num_landmarks = self.num_obst
         # add agents
         world.agents = [Agent() for i in range(num_agents)]
         for i, agent in enumerate(world.agents):
@@ -141,22 +154,45 @@ class Scenario(BaseScenario):
                     if self.is_collision(ag, adv):
                         rew += 10
         return rew
+    
+    def segment_collisions(self,circle_center,circle_radius):
+        c = circle_center
+        p1 = - c
+        p2 = self.col_lines - c
+        d = self.col_lines
+        dr = np.expand_dims((d**2).sum(axis=1),1)
+        temp = p1 * np.flip(p2,axis=1)
+        big_d = np.expand_dims(temp[:,0] - temp[:,1],1)
+        det = circle_radius**2 * dr**2 - big_d**2
+        sign = -np.sign(d)
+        big_d2 = np.hstack([big_d,-big_d])
+        pi = c + (big_d2 * np.flip(d,axis=1) - d * np.sign(det) * abs(det)**0.5) / dr**2
+        frac = np.choose(abs(d).argmax(axis=1),pi.T)
+        selector = (0 <= frac) & (frac <= 1) & (np.squeeze(det) > 0)
+        pi[~selector] = self.col_lines[0]
+        return np.sqrt((pi**2).sum(axis=1)),selector
 
     def observation(self, agent, world):
+        
+        landmark_collisions = np.ones(self.observation_resolution) * (self.advr_col_range if agent.adversary else self.good_col_range) / 2
         # get positions of all entities in this agent's reference frame
-        entity_pos = []
         for entity in world.landmarks:
             if not entity.boundary:
-                entity_pos.append(entity.state.p_pos - agent.state.p_pos)
-        # communication of all other agents
-        comm = []
-        other_pos = []
-        other_vel = []
+                relative_pos = entity.state.p_pos - agent.state.p_pos
+                collisions,_ = self.segment_collisions(relative_pos,entity.size/2)
+                landmark_collisions = np.minimum(landmark_collisions,collisions)
+                
+        advr_collisions = np.ones(self.observation_resolution) * (self.advr_col_range if agent.adversary else self.good_col_range) / 2
+        good_collisions = np.ones(self.observation_resolution) * (self.advr_col_range if agent.adversary else self.good_col_range) / 2
+        agent_vels = np.zeros((self.observation_resolution,2))
         for other in world.agents:
             if other is agent:
                 continue
-            comm.append(other.state.c)
-            other_pos.append(other.state.p_pos - agent.state.p_pos)
-            if not other.adversary:
-                other_vel.append(other.state.p_vel)
-        return np.concatenate([agent.state.p_vel] + [agent.state.p_pos] + entity_pos + other_pos + other_vel)
+            relative_pos = other.state.p_pos - agent.state.p_pos
+            collisions,selector = self.segment_collisions(relative_pos,other.size/2)
+            agent_vels[selector] = other.state.p_vel 
+            if other.adversary:
+                advr_collisions = np.minimum(advr_collisions,collisions)
+            else:
+                good_collisions = np.minimum(good_collisions,collisions)
+        return np.hstack([agent.state.p_vel,agent.state.p_pos,good_collisions,advr_collisions,landmark_collisions,agent_vels.flatten()])
