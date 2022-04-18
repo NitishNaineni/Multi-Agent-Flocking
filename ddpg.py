@@ -1,4 +1,5 @@
 from models import Actor, Critic
+from experience_replay import Experience
 
 
 class DDPG:
@@ -16,11 +17,11 @@ class DDPG:
 
         # Doing a hard update to make sure the parameters are same
 
-        hUpdate()
-        hUpdate()
+        self.hardUpdate()
+        self.hardUpdate()
 
         # Random Process noise
-        self.random_noise = oh()
+        self.random_noise = self.OhNoise()
 
         # Hyper-parameters
         self.batch_size = args.batch_size
@@ -29,8 +30,31 @@ class DDPG:
         self.epsilon = 1.0
         
 
-        if USE_CUDA: self.cuda()
+        if args.CUDA: self.cuda_port()
+
+    # Function for updating policy
+    def policyUpdate(self):
+
+        # Sampling the batch from experience replay
+
+        # 
+        
+
+        return 0
 
 
-    def policy_update(self):
+    # Function for hard copying parameters of the main network to target network
+    def hardUpdate():
+
+        return 0
+
+    # Function for Soft copying parameters of the main network to target network
+    def softUpdate():
+
+        return 0
+
+    # Function for introducing the Noise to the actions
+    def OhNoise():
+
+        return 0
 
