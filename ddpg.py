@@ -2,6 +2,7 @@ from models import Actor, Critic
 from experience_replay import Experience
 import torch.nn as nn
 import copy
+import torch
 
 class DDPG:
     def __init__(self, n_obs, n_actions, args):
@@ -18,8 +19,8 @@ class DDPG:
 
         # Doing a hard update to make sure the parameters are same
 
-        self.hardUpdate()
-        self.hardUpdate()
+        self.hardUpdate(self.target_actor,self.actor)
+        self.hardUpdate(self.target_critic,self.critic)
 
         # Random Process noise
         self.random_noise = self.OhNoise()
@@ -70,8 +71,8 @@ class DDPG:
 
         # Updating the target network parameters softly
 
-        self.softUpdate()
-        self.softUpdate()
+        self.softUpdate(self.target_actor,self.actor)
+        self.softUpdate(self.target_critic,self.critic)
 
         return 0
 
@@ -83,13 +84,27 @@ class DDPG:
         self.target_actor.eval()
 
     # Function for hard copying parameters of the main network to target network
-    def hardUpdate():
-
-        return 0
+    def hardUpdate(target_net, model):
+        target_net.load_state_dict(model.state_dict())
+        
 
     # Function for Soft copying parameters of the main network to target network
-    def softUpdate():
+    def softUpdate(target_net, model, tau):
+        
+        for target_params, params in zip(target_net.parameters(), model.parameters()):
+            target_params.data.copy_(target_params.data * (1.0 - tau) + params.data * tau)
+        
 
-        return 0
+    # This can be implemeneted in a better way later on
+    def saveModel(self):
+
+        torch.save(self.actor.state_dict(), "actor_params.pt")
+        torch.save(self.critic.state_dict(), "critic_params.pt")
+        return 
+
+    def LoadModel():
+
+        return
+    
 
 
