@@ -18,11 +18,6 @@ class Actor():
         self.fc3 = nn.Linear(self.hNodes, self.hNodes)
         self.fc4 = nn.Linear(self.hNodes, n_actions)
 
-        # Optimizer
-        self.optimizer = optim.Adam(self.parameters(), lr=lr)
-        
-        # Mean Square Loss
-        self.criterion = nn.MSELoss()
 
     def forward(self, x):
         x = F.relu(self.fc1(x))
@@ -37,7 +32,7 @@ class Actor():
 
 class Critic():
      
-    def __init__(self, n_obs, n_actions, n_hNodes = 64, lr = 0.001):
+    def __init__(self, n_obs, n_actions, n_hNodes = 64):
         super().__init__()
 
         # Layers
@@ -46,12 +41,6 @@ class Critic():
         self.fc3 = nn.Linear(n_hNodes , n_hNodes)
         self.fc4 = nn.Linear(n_hNodes, 1)
         
-        # Optimizer
-        self.optimizer = optim.Adam(self.parameters(), lr=lr)
-        
-        # Mean Square Loss
-        self.criterion = nn.MSELoss()
-
     def forward(self, obs, action):
 
         x = F.relu(self.fc1(obs))

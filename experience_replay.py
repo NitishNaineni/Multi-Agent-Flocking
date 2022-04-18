@@ -6,7 +6,7 @@ class Experience:
     
     def _init_(self,batch_size):
 
-        self.memory = deque(maxlen=1000)
+        self.memory = deque(maxlen=batch_size)
         self.batch_size = batch_size
         self.exp = namedtuple("Experience", field_names=["state", "action", "reward", "next_state", "done"])
 
