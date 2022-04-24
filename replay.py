@@ -1,6 +1,3 @@
-from importlib.machinery import all_suffixes
-from platform import mac_ver
-import random
 import numpy as np
 from collections import deque
 
