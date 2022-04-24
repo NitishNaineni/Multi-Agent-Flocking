@@ -1,5 +1,8 @@
 import numpy as np
-from collections import deque
+from collections import deque,namedtuple
+
+Experience = namedtuple('Experience',
+                        ('state', 'action', 'reward', 'next_state', 'done'))
 
 class Prioritized_Experience_Replay:
     def __init__(self, size, alpha, sample_size):
@@ -12,7 +15,7 @@ class Prioritized_Experience_Replay:
         self.p_total = 0
         self.timestep = 0
 
-    def push(self,data,loss):
+    def push(self,loss,*args):
         p = (abs(loss) + self.offset)**self.alpha
         
         if self.timestep >= self.size:
@@ -20,7 +23,7 @@ class Prioritized_Experience_Replay:
             self.p_total -= last
 
         self.priorities.append(p)
-        self.buffer.append(data)
+        self.buffer.append(Experience(*args))
 
         self.p_total += p
         self.timestep += 1
