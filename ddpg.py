@@ -1,6 +1,6 @@
 from models import Actor, Critic
-from experience_replay import Experience
 import torch.nn as nn
+import torch.optim as optim
 import copy
 import torch
 
@@ -13,9 +13,11 @@ class DDPG:
 
         self.actor = Actor(self.n_obs, self.n_actions)
         self.target_actor = Actor(self.n_obs, self.n_actions)
+        self.actor_optimizer = optim.Adam(self.actor.parameters(), lr= args.lr_actor)
         
         self.critic = Critic(self.n_obs, self.n_actions)
         self.target_critic = Critic(self.n_obs, self.n_actions)
+        self.critic_optimizer = optim.Adam(self.critic.parameters(), lr= args.lr_critic)
 
         # Doing a hard update to make sure the parameters are same
 
@@ -24,9 +26,6 @@ class DDPG:
 
         # Random Process noise
         self.random_noise = self.OhNoise()
-
-        # Experience Replay class
-        self.exp = Experience(1000)
 
         # Hyper-parameters
         self.batch_size = args.batch_size
@@ -39,10 +38,10 @@ class DDPG:
         if args.CUDA: self.cuda_port()
 
     # Function for updating policy
-    def policyUpdate(self):
+    def policyUpdate(self, exp):
 
         # Sampling the batch from experience replay
-        states_batch, actions_batch, rewards_batch, nstates_batch, done_batch = self.exp.sample()
+        states_batch, actions_batch, rewards_batch, nstates_batch, done_batch = exp.sample()
 
         # Calculcating Target Q
         target_actions = self.target_actor(nstates_batch)
@@ -53,12 +52,14 @@ class DDPG:
 
         q_values = self.critic(states_batch, actions_batch)
 
+        # Calculating the critic loss
         critic_loss =  nn.MSELoss(q_values, target_q_values.detach())
         
 
         # Critic network Update
         self.critic.zero_grad()
         critic_loss.backward()
+        self.critic_optimizer.step()
         
         # Calculating the policy network loss
         policy_loss = -(self.critic(states_batch, self.actor(states_batch)))
@@ -67,6 +68,7 @@ class DDPG:
         # Actor Network Update
         self.actor.zero_grad()
         policy_loss.backward()
+        self.actor_optimizer.step()
 
 
         # Updating the target network parameters softly
@@ -103,7 +105,7 @@ class DDPG:
         return 
 
     def LoadModel():
-
+        
         return
     
 
