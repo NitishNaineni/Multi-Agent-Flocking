@@ -10,4 +10,6 @@ critic_hn : 256
 lr_actor : 0.01
 lr_critic: 0.01
 epoch_val : 100
+buffer_size: 1000
 CUDA : False
+ 

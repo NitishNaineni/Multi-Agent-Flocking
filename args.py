@@ -4,7 +4,7 @@ import yaml
 class parameter_args():
 
     def __init__(self, fname):
-        with open('parameters.yaml', 'r') as file:
+        with open(fname, 'r') as file:
             args = yaml.safe_load(file)
 
         self.architecture = args['architecture']
