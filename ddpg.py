@@ -35,12 +35,12 @@ class DDPG:
         self.criterion = nn.MSELoss()
         
 
-        if args.CUDA: self.cuda_port()
+        # if args.CUDA: self.cuda_port()
 
     # Function for updating policy
     def policyUpdate(self, exp):
 
-        # Sampling the batch from experience replay
+        # Sampling the batch from experience replay (Need to change this later on as per the Nitish's reply class)
         states_batch, actions_batch, rewards_batch, nstates_batch, done_batch = exp.sample()
 
         # Calculcating Target Q
@@ -50,6 +50,7 @@ class DDPG:
         
         target_q_values = rewards_batch + self.dist_factor*(1- done_batch)*target_critic_q_values
 
+        # Current Q Value
         q_values = self.critic(states_batch, actions_batch)
 
         # Calculating the critic loss
@@ -72,7 +73,6 @@ class DDPG:
 
 
         # Updating the target network parameters softly
-
         self.softUpdate(self.target_actor,self.actor)
         self.softUpdate(self.target_critic,self.critic)
 

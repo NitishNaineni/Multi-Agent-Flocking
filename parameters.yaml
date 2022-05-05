@@ -1,0 +1,14 @@
+---
+architecture : "ddpg" #This can be PPO or DDPG
+epoch: 5000
+timesteps: 500
+tau: 0.1
+batch_size: 256
+disc_factor: 0.99
+actor_hn: 256
+critic_hn : 256
+lr_actor : 0.01
+lr_critic: 0.01
+epoch_val : 100
+CUDA : False
+ 
