@@ -15,7 +15,9 @@ env = make_env(raw_env)
 parallel_env = parallel_wrapper_fn(env)
 
 config = {
+    
     "max_cycles" : 25,
+    "num_good" : 3,
     "num_advr" : 1,
     "num_obst" : 2,
     
@@ -37,7 +39,10 @@ config = {
     "advr_spawn_range" : 1,
     "obst_spawn_range" : 0.9,
     
-    "observation_resolution" : 6
+    "observation_resolution" : 6,
+
+    "good_col_range" : 1,
+    "advr_col_range" : 1
 
 }
 
