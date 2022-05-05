@@ -3,36 +3,35 @@ from pettingzoo.mpe._mpe_utils.core import Agent,Landmark, World
 from pettingzoo.mpe._mpe_utils.scenario import BaseScenario
 
 class Scenario(BaseScenario):
-    def __init__(self):
-        self.num_good = 10
-        self.num_advr = 1
-        self.num_obst = 2
+    def __init__(self,config):
+        self.num_good = config['num_good']
+        self.num_advr = config['num_advr']
+        self.num_obst = config['num_obst']
         
-        self.good_size = 0.05
-        self.advr_size = 0.075
-        self.obst_size = 0.2
+        self.good_size = config['good_size']
+        self.advr_size = config['advr_size']
+        self.obst_size = config['obst_size']
         
-        self.advr_accel = 3.0
-        self.advr_accel = 3.0
-        self.good_accel = 4.0
+        self.advr_accel = config['advr_accel']
+        self.good_accel = config['good_accel']
         
-        self.advr_max_speed = 1.0
-        self.good_max_speed = 1.3
+        self.advr_max_speed = config['advr_max_speed']
+        self.good_max_speed = config['good_max_speed']
         
-        self.good_color = np.array([0.35, 0.85, 0.35])
-        self.obst_color = np.array([0.25, 0.25, 0.25])
-        self.advr_color = np.array([0.85, 0.35, 0.35])
+        self.good_color = config['good_color']
+        self.obst_color = config['obst_color']
+        self.advr_color = config['advr_color']
         
-        self.good_spawn_range = 1
-        self.advr_spawn_range = 1
-        self.obst_spawn_range = 0.9
+        self.good_spawn_range = config['good_spawn_range']
+        self.advr_spawn_range = config['advr_spawn_range']
+        self.obst_spawn_range = config['obst_spawn_range']
         
-        self.observation_resolution = 6
+        self.observation_resolution = config['observation_resolution']
         res = self.observation_resolution
         self.col_lines = np.array([(np.cos(2 * np.pi * i / res),np.sin(2 * np.pi * i / res)) 
                                    for i in range(res)],dtype=np.float16)
-        self.good_col_range = 0.2
-        self.advr_col_range = 0.2
+        self.good_col_range = config['good_col_range']
+        self.advr_col_range = config['advr_col_range']
         
     def make_world(self):
         world = World()
