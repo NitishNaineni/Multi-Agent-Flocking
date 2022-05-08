@@ -1,15 +1,28 @@
 ---
-architecture : "ddpg" #This can be PPO or DDPG
+# Environment
+CUDA : False
+
+# Training
 epoch: 5000
-timesteps: 500
-tau: 0.1
+timesteps: 100000
 batch_size: 256
 disc_factor: 0.99
+buffer_size: 1000
+
+# Validation
+epoch_val : 100
+
+# Neural Network
+architecture : "ddpg" #This can be PPO or DDPG
 actor_hn: 256
 critic_hn : 256
 lr_actor : 0.01
 lr_critic: 0.01
-epoch_val : 100
-buffer_size: 1000
-CUDA : False
- 
+tau: 0.1
+
+# OU Noise
+mu : 0.0
+theta : 0.15
+max_sigma: 0.3
+min_sigma: 0.3
+decay_steps: 50000

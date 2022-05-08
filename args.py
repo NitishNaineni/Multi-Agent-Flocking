@@ -1,9 +1,9 @@
 from platform import architecture
 import yaml
 
-class parameter_args():
+class parameter_args:
 
-    def __init__(self, fname):
+    def __init__(self, fname='config/paramters.yml'):
         with open(fname, 'r') as file:
             args = yaml.safe_load(file)
 
@@ -20,5 +20,9 @@ class parameter_args():
         self.epoch_val  = args['epoch_val']
         self.CUDA  = args['CUDA']
         self.buffer_size = args['buffer_size']
-
+        self.mu = args['mu']
+        self.theta = args['theta']
+        self.max_sigma = args['max_sigma']
+        self.min_sigma = args['min_sigma']
+        self.decay_steps = args['decay_steps']
 
