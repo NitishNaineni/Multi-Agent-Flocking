@@ -7,7 +7,8 @@ epoch: 5000
 timesteps: 100000
 batch_size: 256
 disc_factor: 0.99
-buffer_size: 1000
+buffer_size_adversary: 500
+buffer_size_agent: 1500
 
 # Validation
 epoch_val : 100
