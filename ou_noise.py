@@ -30,7 +30,7 @@ class ouNoise():
 
     def add_noise(self, action, timestep=0):
         ou_state = self.change_state()
-        self.sigma = self.max_sigma - (self.max_sigma - self.min_sigma) * min(1.0, t/self.decay_steps)
+        self.sigma = self.max_sigma - (self.max_sigma - self.min_sigma) * min(1.0, timestep/self.decay_steps)
         return np.clip(action + ou_state, self.action_low, self.action_high)
 
 
