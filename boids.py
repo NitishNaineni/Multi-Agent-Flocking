@@ -4,7 +4,7 @@ from scenario import Scenario
 import numpy as np
 
 class raw_env(SimpleEnv):
-    def __init__(self, config, continuous_actions=False):
+    def __init__(self, config, continuous_actions=True):
         scenario = Scenario(config)
         world = scenario.make_world()
         super().__init__(scenario, world, config['max_cycles'], continuous_actions)
