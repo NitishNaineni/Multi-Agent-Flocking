@@ -24,9 +24,6 @@ class DDPG:
         self.hardUpdate(self.target_actor,self.actor)
         self.hardUpdate(self.target_critic,self.critic)
 
-        # Random Process noise
-        self.random_noise = self.OhNoise()
-
         # Hyper-parameters
         self.batch_size = args.batch_size
         self.tau = args.tau
