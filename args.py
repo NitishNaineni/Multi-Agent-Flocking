@@ -1,10 +1,10 @@
 from platform import architecture
 import yaml
 
-class args():
+class parameter_args():
 
     def __init__(self, fname):
-        with open('parameters.yaml', 'r') as file:
+        with open(fname, 'r') as file:
             args = yaml.safe_load(file)
 
         self.architecture = args['architecture']
@@ -19,6 +19,6 @@ class args():
         self.lr_critic = args['lr_critic']
         self.epoch_val  = args['epoch_val']
         self.CUDA  = args['CUDA']
-            
+        self.buffer_size = args['buffer_size']
 
 

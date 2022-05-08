@@ -2,18 +2,6 @@
 import torch 
 import torch.nn as nn
 import torch.nn.functional as F
-import torch.optim as optim
-
-import math
-import random
-
-import gym
-import numpy as np
-
-import torch
-import torch.nn as nn
-import torch.optim as optim
-import torch.nn.functional as F
 from torch.distributions import Normal
 
 class Actor():
