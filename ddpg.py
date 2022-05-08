@@ -106,4 +106,10 @@ class DDPG:
         return
     
 
+    def get_actions(self, obs):
+        actions = self.actor(obs)
+        return actions
 
+    def get_q_value(self, obs, actions):
+        q_val = self.critic(obs. actions)
+        return q_val
