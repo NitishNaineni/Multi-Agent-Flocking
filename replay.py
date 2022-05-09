@@ -35,7 +35,8 @@ class Prioritized_Experience_Replay:
         sampled = np.random.choice(self.buffer,self.sample_size,p=sample_prob)
         np.random.seed(seed)
         priorities = np.random.choice(self.priorities,self.sample_size,p=sample_prob)
-        return sampled,np.array(priorities)/self.p_total
+        avg_prob=np.mean(priorities)/self.p_total
+        return sampled,avg_prob
 
     def is_full(self):
         return self.timestep >= self.size

@@ -36,10 +36,10 @@ class DDPG:
         # if args.CUDA: self.cuda_port()
 
     # Function for updating policy
-    def policyUpdate(self, exp):
+    def policyUpdate(self, exp,buffer_size):
 
         # Sampling the batch from experience replay (Need to change this later on as per the Nitish's reply class)
-        instances,priorities=exp.sample()
+        instances,avg_prob=exp.sample()
         batch=Experience(zip(instances))
         states_batch=batch.state
         actions_batch=batch.action
@@ -57,7 +57,7 @@ class DDPG:
         q_values = self.critic(states_batch, actions_batch)
 
         # Calculating the critic loss
-        critic_loss =  nn.MSELoss(q_values, target_q_values.detach())
+        critic_loss =  (nn.MSELoss(q_values, target_q_values.detach()))/(avg_prob*buffer_size)
         
 
         # Critic network Update
@@ -67,7 +67,7 @@ class DDPG:
         
         # Calculating the policy network loss
         policy_loss = -(self.critic(states_batch, self.actor(states_batch)))
-        policy_loss = policy_loss.mean()
+        policy_loss = policy_loss.mean()/(avg_prob*buffer_size)
 
         # Actor Network Update
         self.actor.zero_grad()
