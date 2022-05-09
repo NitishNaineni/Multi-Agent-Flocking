@@ -154,6 +154,15 @@ class Scenario(BaseScenario):
                 for adv in adversaries:
                     if self.is_collision(ag, adv):
                         rew += 10
+        def bound(x):
+            if x < 0.9:
+                return 0
+            if x < 1.0:
+                return (x - 0.9) * 10
+            return min(np.exp(2 * x - 2), 10)
+        for p in range(world.dim_p):
+            x = abs(agent.state.p_pos[p])
+            rew -= bound(x)
         return rew
     
     def segment_collisions(self,circle_center,circle_radius):

@@ -7,7 +7,7 @@ Wiki - https://en.wikipedia.org/wiki/Ornstein%E2%80%93Uhlenbeck_process
 import numpy as np
 class ouNoise:
 
-    def __init__(self, env_actions, mu=0.0, theta=0.15, max_sigma=0.3, min_sigma=0.3, decay_steps=100000):
+    def __init__(self, env_actions, mu=0.0, theta=0.15, max_sigma=0.1, min_sigma=0.1, decay_steps=100000):
         self.mu = mu
         self.theta = theta
         self.sigma = max_sigma
