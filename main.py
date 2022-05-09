@@ -27,17 +27,17 @@ def collect_experience(env,obs,args,agent_per,adversary_per,agent_ddpg,adversary
             if(key.find('adversary') != -1):
                 temp=adversary_ddpg.get_actions(obs[key])
                 # print("NN ", temp)
-                # temp=adversary_noise.add_noise(temp.detach().numpy(),timestep=count)
+                temp=temp.detach().numpy() + adversary_noise.add_noise()
                 # print("Noise ", temp)
-                actions[key]=temp.detach().numpy().astype(np.float32)
-                # actions[key] = np.clip(actions[key], env.action_space(key).low, env.action_space(key).high)
+                actions[key]=temp.astype(np.float32)
+                actions[key] = np.clip(actions[key], env.action_space(key).low[0], env.action_space(key).high[0])
 
             else:
                 temp=agent_ddpg.get_actions(obs[key])
-                # temp=agent_noise.add_noise(temp.detach().numpy(),timestep=count)
-                actions[key]=temp.detach().numpy().astype(np.float32)
-                # actions[key] = np.clip(actions[key], env.action_space(key).low, env.action_space(key).high)
-
+                temp=temp.detach().numpy() + agent_noise.add_noise()
+                actions[key]=temp.astype(np.float32)
+                actions[key] = np.clip(actions[key], env.action_space(key).low[0], env.action_space(key).high[0])
+                # actions[key] = np.array([1,0,0,0,1])
         nex_obs, reward, done,_= env.step(actions)
         # print(nex_obs)
         env.render()
@@ -58,22 +58,26 @@ def collect_experience(env,obs,args,agent_per,adversary_per,agent_ddpg,adversary
             DONE=True
     print("Adversary Reward ", score_adversary)
     print("Agent Reward",score_agent )
-    # env.close()
+    env.close()
     return score_agent,score_adversary
 
 
 if __name__ == "__main__":
     env = penv(config=config)
     obs=env.reset()
-    num_states=env.observation_space('agent_0').shape[0]
+    num_states_agent=env.observation_space('agent_0').shape[0]
+    num_states_adv=env.observation_space('adversary_0').shape[0]
+
     num_actions=env.action_space('agent_0').shape[0]
     args=parameter_args()
     agent_per=PER(args.buffer_size_agent,args.exp_alpha,args.batch_size)
     adversary_per=PER(args.buffer_size_adversary,args.exp_alpha,args.batch_size)
-    agent_ddpg=DDPG(num_states,num_actions,args)
-    adversary_ddpg=DDPG(num_states,num_actions,args)
-    agent_noise=ouNoise(env.action_space('agent_0'),decay_steps=args.timesteps)
-    adversary_noise=ouNoise(env.action_space('adversary_0'),decay_steps=args.timesteps)
+
+    agent_ddpg=DDPG(num_states_agent,num_actions,args)
+    adversary_ddpg=DDPG(num_states_adv,num_actions,args)
+    
+    agent_noise=ouNoise(np.zeros(env.action_space('agent_0').shape[0]))
+    adversary_noise=ouNoise(np.zeros(env.action_space('agent_0').shape[0]))
     agent_scores=[]
     adversary_scores=[]
     train_agent = True
@@ -89,14 +93,14 @@ if __name__ == "__main__":
             print("Training Agent")
             agent_ddpg.policyUpdate(agent_per,args.buffer_size_agent)
             # if i%5==0
-            agent_ddpg.saveModel()
+            agent_ddpg.saveModel(name='agent')
         elif not train_agent and  (len(adversary_per.buffer)>=args.batch_size):
             print("Training Adversary")
             adversary_ddpg.policyUpdate(adversary_per,args.buffer_size_adversary)
-            adversary_ddpg.saveModel()
+            adversary_ddpg.saveModel(name='adversary')
         
            
-        if train_count == 10:
+        if train_count == 3:
             train_agent = not train_agent
             train_count = 0
     env.close()

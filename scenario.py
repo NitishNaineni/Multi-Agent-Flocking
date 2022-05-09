@@ -125,7 +125,7 @@ class Scenario(BaseScenario):
         if agent.collide:
             for a in adversaries:
                 if self.is_collision(a, agent):
-                    rew -= 10
+                    rew -= 100
 
         # agents are penalized for exiting the screen, so that they can be caught by the adversaries
         def bound(x):
@@ -153,7 +153,7 @@ class Scenario(BaseScenario):
             for ag in agents:
                 for adv in adversaries:
                     if self.is_collision(ag, adv):
-                        rew += 10
+                        rew += 100
         def bound(x):
             if x < 0.9:
                 return 0
@@ -163,6 +163,8 @@ class Scenario(BaseScenario):
         for p in range(world.dim_p):
             x = abs(agent.state.p_pos[p])
             rew -= bound(x)
+
+
         return rew
     
     def segment_collisions(self,circle_center,circle_radius):
@@ -227,3 +229,11 @@ class Scenario(BaseScenario):
             + other_pos
             + other_vel
         )
+    
+    def done(self, agent, world):
+        for p in range(world.dim_p):
+            x = abs(agent.state.p_pos[p])
+            if x > 1:
+                return True
+        
+        return False

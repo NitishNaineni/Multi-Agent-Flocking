@@ -10,8 +10,7 @@ class DDPG:
 
         self.n_actions = n_actions
         self.n_obs = n_obs
-
-
+        
         self.actor = Actor(self.n_obs, self.n_actions)
         self.target_actor = Actor(self.n_obs, self.n_actions)
         self.actor_optimizer = optim.Adam(self.actor.parameters(), lr= args.lr_actor)
@@ -70,6 +69,8 @@ class DDPG:
         
         # Calculating the policy network loss
         policy_loss = -(self.critic(states_batch, self.actor(states_batch)))
+        # policy_loss = self.critic(states_batch, self.actor(states_batch))
+
         policy_loss = policy_loss.mean()/(avg_prob*buffer_size)
 
         # Actor Network Update
@@ -107,10 +108,13 @@ class DDPG:
 
 
     # This can be implemeneted in a better way later on
-    def saveModel(self):
-
-        torch.save(self.actor.state_dict(), "actor_params.pt")
-        torch.save(self.critic.state_dict(), "critic_params.pt")
+    def saveModel(self,name):
+        if name=='agent':
+            torch.save(self.actor.state_dict(), "agent_actor_params.pt")
+            torch.save(self.critic.state_dict(), "agent_critic_params.pt")
+        else:
+            torch.save(self.actor.state_dict(), "adversary_actor_params.pt")
+            torch.save(self.critic.state_dict(), "dversary_critic_params.pt")
         return 
 
     def LoadModel():

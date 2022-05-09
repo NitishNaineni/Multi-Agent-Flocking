@@ -3,23 +3,23 @@
 CUDA : False
 
 # Training
-epoch: 5000
-timesteps: 1000
+epoch: 100000
+timesteps: 100
 batch_size: 256
 disc_factor: 0.99
-buffer_size_adversary: 500
-buffer_size_agent: 1500
-tau : 0.01
+buffer_size_adversary: 70000
+buffer_size_agent: 90000
+tau : 0.001
 
 # Validation
 epoch_val : 100
 
 # Neural Network
 architecture : "ddpg" #This can be PPO or DDPG
-actor_hn: 256
-critic_hn : 256
-lr_actor : 0.001
-lr_critic: 0.001
+actor_hn: 50
+critic_hn : 50
+lr_actor : 0.00001
+lr_critic: 0.0001
 alpha: 0.1
 
 # OU Noise

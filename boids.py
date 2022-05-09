@@ -17,10 +17,10 @@ parallel_env = parallel_wrapper_fn(env)
 config = {
     
     "shape":True,
-    "max_cycles" : 1000,
+    "max_cycles" : 100,
     "num_good" : 3,
     "num_advr" : 1,
-    "num_obst" : 1,
+    "num_obst" : 0,
     
     "good_size" : 0.05,
     "advr_size" : 0.075,
@@ -30,7 +30,7 @@ config = {
     "good_accel" : 4.0,
     
     "advr_max_speed" : 1.0,
-    "good_max_speed" : 1.0,
+    "good_max_speed" : 1.3,
     
     "good_color" : np.array([0.35, 0.85, 0.35]),
     "obst_color" : np.array([0.25, 0.25, 0.25]),
