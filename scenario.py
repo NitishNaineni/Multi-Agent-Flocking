@@ -201,6 +201,7 @@ class Scenario(BaseScenario):
             relative_pos = other.state.p_pos - agent.state.p_pos
             collisions,selector = self.segment_collisions(relative_pos,other.size/2)
             agent_vels[selector] = other.state.p_vel 
+            # print(collisions)
             if other.adversary:
                 advr_collisions = np.minimum(advr_collisions,collisions)
             else:
