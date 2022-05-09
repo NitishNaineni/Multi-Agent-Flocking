@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.optim as optim
 import copy
 import torch
+from replay import Experience
 
 class DDPG:
     def __init__(self, n_obs, n_actions, args):
@@ -38,8 +39,13 @@ class DDPG:
     def policyUpdate(self, exp):
 
         # Sampling the batch from experience replay (Need to change this later on as per the Nitish's reply class)
-        states_batch, actions_batch, rewards_batch, nstates_batch, done_batch = exp.sample()
-
+        instances,priorities=exp.sample()
+        batch=Experience(zip(instances))
+        states_batch=batch.state
+        actions_batch=batch.action
+        rewards_batch=batch.reward
+        nstates_batch=batch.next_state
+        done_batch=batch.done
         # Calculcating Target Q
         target_actions = self.target_actor(nstates_batch)
         

@@ -68,13 +68,11 @@ if __name__ == "__main__":
     adversary_scores=[]
     for i in range(args.epoch):
         obs=env.reset()
-        if(i%20==0) and (len(agent_per.buffer)>=args.batch_size):
+        if(i%2==0) and (len(agent_per.buffer)>=args.batch_size):
             agent_ddpg.policyUpdate(agent_per)
-            #train(env,args,agent_ddpg,agent_per)
             agent_ddpg.saveModel()
-        elif(i%21==0) and  (len(adversary_per.buffer)>=args.batch_size):
+        elif(i%3==0) and  (len(adversary_per.buffer)>=args.batch_size):
             adversary_ddpg.policyUpdate(adversary_per)
-            #train(env,args,adversary_ddpg,adversary_per)
             adversary_ddpg.saveModel()
         else:
            score_agent,score_adversary= collect_experience(env,obs,args,agent_per,adversary_per,agent_ddpg,adversary_ddpg,agent_noise,adversary_noise)
