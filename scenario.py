@@ -182,27 +182,48 @@ class Scenario(BaseScenario):
         pi[~selector] = self.col_lines[0]
         return np.sqrt((pi**2).sum(axis=1)),selector
 
-    def observation(self, agent, world):
+    # def observation(self, agent, world):
         
-        landmark_collisions = np.ones(self.observation_resolution) * (self.advr_col_range if agent.adversary else self.good_col_range) / 2
-        # get positions of all entities in this agent's reference frame
+    #     landmark_collisions = np.ones(self.observation_resolution) * (self.advr_col_range if agent.adversary else self.good_col_range) / 2
+    #     # get positions of all entities in this agent's reference frame
+    #     for entity in world.landmarks:
+    #         if not entity.boundary:
+    #             relative_pos = entity.state.p_pos - agent.state.p_pos
+    #             collisions,_ = self.segment_collisions(relative_pos,entity.size/2)
+    #             landmark_collisions = np.minimum(landmark_collisions,collisions)
+                
+    #     advr_collisions = np.ones(self.observation_resolution) * (self.advr_col_range if agent.adversary else self.good_col_range) / 2
+    #     good_collisions = np.ones(self.observation_resolution) * (self.advr_col_range if agent.adversary else self.good_col_range) / 2
+    #     agent_vels = np.zeros((self.observation_resolution,2))
+    #     for other in world.agents:
+    #         if other is agent:
+    #             continue
+    #         relative_pos = other.state.p_pos - agent.state.p_pos
+    #         collisions,selector = self.segment_collisions(relative_pos,other.size/2)
+    #         agent_vels[selector] = other.state.p_vel 
+    #         if other.adversary:
+    #             advr_collisions = np.minimum(advr_collisions,collisions)
+    #         else:
+    #             good_collisions = np.minimum(good_collisions,collisions)
+    #     return np.hstack([agent.state.p_vel,agent.state.p_pos,good_collisions,advr_collisions,landmark_collisions,agent_vels.flatten()])
+
+    def observation(self, agent, world):
+        entity_pos = []
         for entity in world.landmarks:
             if not entity.boundary:
-                relative_pos = entity.state.p_pos - agent.state.p_pos
-                collisions,_ = self.segment_collisions(relative_pos,entity.size/2)
-                landmark_collisions = np.minimum(landmark_collisions,collisions)
-                
-        advr_collisions = np.ones(self.observation_resolution) * (self.advr_col_range if agent.adversary else self.good_col_range) / 2
-        good_collisions = np.ones(self.observation_resolution) * (self.advr_col_range if agent.adversary else self.good_col_range) / 2
-        agent_vels = np.zeros((self.observation_resolution,2))
+                entity_pos.append(entity.state.p_pos - agent.state.p_pos)
+        other_pos = []
+        other_vel = []
         for other in world.agents:
             if other is agent:
                 continue
-            relative_pos = other.state.p_pos - agent.state.p_pos
-            collisions,selector = self.segment_collisions(relative_pos,other.size/2)
-            agent_vels[selector] = other.state.p_vel 
-            if other.adversary:
-                advr_collisions = np.minimum(advr_collisions,collisions)
-            else:
-                good_collisions = np.minimum(good_collisions,collisions)
-        return np.hstack([agent.state.p_vel,agent.state.p_pos,good_collisions,advr_collisions,landmark_collisions,agent_vels.flatten()])
+            other_pos.append(other.state.p_pos - agent.state.p_pos)
+            if not other.adversary:
+                other_vel.append(other.state.p_vel)
+        return np.concatenate(
+            [agent.state.p_vel]
+            + [agent.state.p_pos]
+            + entity_pos
+            + other_pos
+            + other_vel
+        )
