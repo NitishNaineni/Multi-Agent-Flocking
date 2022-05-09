@@ -14,12 +14,12 @@ from gym.spaces import Box
 import warnings
 warnings.filterwarnings("always")
 
-def collect_experience(env,obs,args,agent_per,adversary_per,agent_ddpg,adversary_ddpg,agent_noise,adversary_noise,agent_scores,adversary_scores):
+def collect_experience(env,obs,args,agent_per,adversary_per,agent_ddpg,adversary_ddpg,agent_noise,adversary_noise):
     count=0
-    done=False
+    DONE=False
     score_agent=0
     score_adversary=0
-    while (count<=args.timesteps)or (not done):
+    while not DONE:
         actions={}
         loss={}
         for key in obs:
@@ -34,20 +34,22 @@ def collect_experience(env,obs,args,agent_per,adversary_per,agent_ddpg,adversary
                 actions[key]=temp.astype(np.float32)
 
         nex_obs, reward, done,_= env.step(actions)
-        #print("Reward",reward)
-        print(count)
         loss=0
         for key in obs:
             if(key.find('adversary') != -1):
                 loss=adversary_ddpg.get_loss(obs[key],actions[key],nex_obs[key])
-                adversary_per.push(loss,obs[key],actions[key],reward[key],nex_obs[key],done)
-                score_agent
+                adversary_per.push(loss,obs[key],actions[key],reward[key],nex_obs[key],done[key])
+                score_adversary+=reward[key]
             else:
                 loss=agent_ddpg.get_loss(obs[key],actions[key],nex_obs[key])
-                agent_per.push(loss,obs[key],actions[key],reward[key],nex_obs[key],done)
+                agent_per.push(loss,obs[key],actions[key],reward[key],nex_obs[key],done[key])
+                score_agent+=reward[key]
         obs=nex_obs
         count+=1
-    #return score
+        if(count>=args.timesteps or all(x==True for x in done.values())):
+            DONE=True
+
+    return score_agent,score_adversary
 
 
 if __name__ == "__main__":
@@ -75,5 +77,7 @@ if __name__ == "__main__":
             #train(env,args,adversary_ddpg,adversary_per)
             adversary_ddpg.saveModel()
         else:
-            collect_experience(env,obs,args,agent_per,adversary_per,agent_ddpg,adversary_ddpg,agent_noise,adversary_noise,agent_scores,adversary_scores)
+           score_agent,score_adversary= collect_experience(env,obs,args,agent_per,adversary_per,agent_ddpg,adversary_ddpg,agent_noise,adversary_noise)
+           agent_scores.append(score_agent)
+           adversary_scores.append(score_adversary)
         
