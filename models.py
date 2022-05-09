@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.distributions import Normal
 
-class Actor():
+class Actor(nn.Module):
          
     def __init__(self, n_obs, n_actions, n_hNodes = 64):
         super().__init__()
@@ -30,7 +30,7 @@ class Actor():
 
 
 
-class Critic():
+class Critic(nn.Module):
      
     def __init__(self, n_obs, n_actions, n_hNodes = 64):
         super().__init__()
