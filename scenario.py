@@ -229,11 +229,3 @@ class Scenario(BaseScenario):
             + other_pos
             + other_vel
         )
-    
-    def done(self, agent, world):
-        for p in range(world.dim_p):
-            x = abs(agent.state.p_pos[p])
-            if x > 1:
-                return True
-        
-        return False

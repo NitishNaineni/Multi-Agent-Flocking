@@ -10,6 +10,31 @@ class raw_env(SimpleEnv):
         super().__init__(scenario, world, config['max_cycles'], continuous_actions)
         self.metadata['name'] = "boids"
 
+    def step(self, action):
+        if self.dones[self.agent_selection]:
+            return self._was_done_step(action)
+        cur_agent = self.agent_selection
+        current_idx = self._index_map[self.agent_selection]
+        next_idx = (current_idx + 1) % self.num_agents
+        self.agent_selection = self._agent_selector.next()
+
+        self.current_actions[current_idx] = action
+
+        if next_idx == 0:
+            self._execute_world_step()
+            self.steps += 1
+            for a in self.world.agents:
+                if max(abs(a.state.p_pos)) > 1:
+                    self.dones[a.name] = True
+                elif self.steps >= self.max_cycles:
+                    self.dones[a.name] = True
+            
+        else:
+            self._clear_rewards()
+
+        self._cumulative_rewards[cur_agent] = 0
+        self._accumulate_rewards()
+
 
 env = make_env(raw_env)
 parallel_env = parallel_wrapper_fn(env)
