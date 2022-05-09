@@ -42,12 +42,14 @@ class Critic(nn.Module):
         self.fc4 = nn.Linear(n_hNodes, 1)
         
     def forward(self, obs, action):
+        # print("Obs shape", obs.shape)
+        # print("Action shape", action.shape)
 
-        x = torch.cat((obs, action), 0)
+        x = torch.hstack([obs, action])
         x = F.relu(self.fc1(x.float()))
         x = F.relu(self.fc2(x))
         x = F.relu(self.fc3(x))
-        x = F.relu(self.fc4(x))
+        x = torch.sigmoid(self.fc4(x))
 
         return x
 

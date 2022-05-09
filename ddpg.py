@@ -4,7 +4,7 @@ import torch.optim as optim
 import copy
 import torch
 from replay import Experience
-
+import numpy as np
 class DDPG:
     def __init__(self, n_obs, n_actions, args):
 
@@ -22,8 +22,7 @@ class DDPG:
 
         # Doing a hard update to make sure the parameters are same
 
-        self.hardUpdate(self.target_actor,self.actor)
-        self.hardUpdate(self.target_critic,self.critic)
+        self.hardUpdate()
 
         # Hyper-parameters
         self.batch_size = args.batch_size
@@ -31,7 +30,7 @@ class DDPG:
         self.dist_factor = args.disc_factor
         self.epsilon = 1.0
         self.criterion = nn.MSELoss()
-        
+        self.args = args
 
         # if args.CUDA: self.cuda_port()
 
@@ -40,25 +39,29 @@ class DDPG:
 
         # Sampling the batch from experience replay (Need to change this later on as per the Nitish's reply class)
         instances,avg_prob=exp.sample()
-        batch=Experience(zip(instances))
-        states_batch=batch.state
-        actions_batch=batch.action
-        rewards_batch=batch.reward
-        nstates_batch=batch.next_state
-        done_batch=batch.done
+        batch=Experience(*zip(*instances))
+        states_batch=torch.tensor(np.array(batch.state, dtype=np.float32))
+        actions_batch=torch.tensor(np.array(batch.action, dtype=np.float32))
+        rewards_batch=torch.tensor(np.array(batch.reward, dtype=np.float32)).unsqueeze(1)
+        nstates_batch=torch.tensor(np.array(batch.next_state, dtype=np.float32))
+        done_batch=torch.tensor(np.array(batch.done), dtype=int).unsqueeze(1)
+        # print("Type ",batch.state)
         # Calculcating Target Q
         target_actions = self.target_actor(nstates_batch)
+        
         
         target_critic_q_values =  self.target_critic(nstates_batch, target_actions) 
         
         target_q_values = rewards_batch + self.dist_factor*(1- done_batch)*target_critic_q_values
-
+        # print("Target Q Values ", target_q_values)
         # Current Q Value
         q_values = self.critic(states_batch, actions_batch)
+        # print(" Q Values ", q_values)
 
         # Calculating the critic loss
-        critic_loss =  (nn.MSELoss(q_values, target_q_values.detach()))/(avg_prob*buffer_size)
-        
+        # print(nn.MSELoss(q_values, target_q_values.detach()))
+        critic_loss_mse =  nn.MSELoss()
+        critic_loss = critic_loss_mse(q_values, target_q_values.detach())/(avg_prob*buffer_size)
 
         # Critic network Update
         self.critic.zero_grad()
@@ -76,8 +79,8 @@ class DDPG:
 
 
         # Updating the target network parameters softly
-        self.softUpdate(self.target_actor,self.actor)
-        self.softUpdate(self.target_critic,self.critic)
+        self.softUpdate()
+        
 
 
     def eval_network(self):
@@ -87,16 +90,21 @@ class DDPG:
         self.target_actor.eval()
 
     # Function for hard copying parameters of the main network to target network
-    def hardUpdate(self,target_net, model):
-        target_net.load_state_dict(model.state_dict())
+    def hardUpdate(self):
+        self.target_critic.load_state_dict(self.critic.state_dict())
+        self.target_actor.load_state_dict(self.actor.state_dict())
         
 
     # Function for Soft copying parameters of the main network to target network
-    def softUpdate(target_net, model, tau):
+    def softUpdate(self):
         
-        for target_params, params in zip(target_net.parameters(), model.parameters()):
-            target_params.data.copy_(target_params.data * (1.0 - tau) + params.data * tau)
+        for target_params, params in zip(self.target_critic.parameters(), self.critic.parameters()):
+            target_params.data.copy_(target_params.data * (1.0 - self.args.tau) + params.data * self.args.tau)
+
+        for target_params, params in zip(self.target_actor.parameters(), self.actor.parameters()):
+            target_params.data.copy_(target_params.data * (1.0 - self.args.tau) + params.data * self.args.tau)
         
+
 
     # This can be implemeneted in a better way later on
     def saveModel(self):

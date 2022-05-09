@@ -1,5 +1,7 @@
 import numpy as np
 from collections import deque,namedtuple
+import random
+from torch import float32
 
 Experience = namedtuple('Experience',
                         ('state', 'action', 'reward', 'next_state', 'done'))
@@ -22,7 +24,7 @@ class Prioritized_Experience_Replay:
             last = self.priorities[0]
             self.p_total -= last
 
-        self.priorities.append(p)
+        self.priorities.append(float(p))
         self.buffer.append(Experience(*args))
 
         self.p_total += p
@@ -30,12 +32,20 @@ class Prioritized_Experience_Replay:
 
     def sample(self):
         seed = np.random.randint(0,2**31)
-        sample_prob = np.array(self.priorities)/self.p_total
+        # print("Priorities Type ",type(self.priorities))
+        # print("p_total Type ",type(self.p_total))
+        sample_prob = list(np.array(self.priorities)/float(self.p_total))
+        # print("Buffer ",len(self.buffer))
+        # print("Sample prob ",len(sample_prob))
         np.random.seed(seed)
-        sampled = np.random.choice(self.buffer,self.sample_size,p=sample_prob)
+        sampled = random.choices(population=self.buffer,k=self.sample_size,weights=sample_prob)
         np.random.seed(seed)
-        priorities = np.random.choice(self.priorities,self.sample_size,p=sample_prob)
-        avg_prob=np.mean(priorities)/self.p_total
+        priorities = random.choices(population=self.priorities,k=self.sample_size,weights=sample_prob)
+        # print("Prior ", priorities)
+        # print("p_total Type ",self.p_total)
+        avg_prob=np.mean(priorities)/float(self.p_total)
+        # print("Priorities Type ",type(priorities))
+        # print("p_total Type ",type(self.p_total))
         return sampled,avg_prob
 
     def is_full(self):

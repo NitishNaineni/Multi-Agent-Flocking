@@ -20,6 +20,7 @@ def collect_experience(env,obs,args,agent_per,adversary_per,agent_ddpg,adversary
     score_agent=0
     score_adversary=0
     while not DONE:
+        # print("Iteration Count ",count)
         actions={}
         loss={}
         for key in obs:
@@ -67,11 +68,14 @@ if __name__ == "__main__":
     agent_scores=[]
     adversary_scores=[]
     for i in range(args.epoch):
+        print("Current Epoch ",i)
         obs=env.reset()
         if(i%2==0) and (len(agent_per.buffer)>=args.batch_size):
+            print("Training Agent")
             agent_ddpg.policyUpdate(agent_per,args.buffer_size_agent)
             agent_ddpg.saveModel()
         elif(i%3==0) and  (len(adversary_per.buffer)>=args.batch_size):
+            print("Training Adversary")
             adversary_ddpg.policyUpdate(adversary_per,args.buffer_size_adversary)
             adversary_ddpg.saveModel()
         else:
