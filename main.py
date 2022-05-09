@@ -66,7 +66,7 @@ if __name__ == "__main__":
     adversary_noise=ouNoise(env.action_spaces['adversary_0'],decay_steps=args.timesteps)
     agent_scores=[]
     adversary_scores=[]
-    for i in range(1):
+    for i in range(args.epoch):
         obs=env.reset()
         if(i%20==0) and (len(agent_per.buffer)>=args.batch_size):
             agent_ddpg.policyUpdate(agent_per)
