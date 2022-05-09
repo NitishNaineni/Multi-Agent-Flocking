@@ -32,6 +32,8 @@ class Scenario(BaseScenario):
                                    for i in range(res)],dtype=np.float16)
         self.good_col_range = config['good_col_range']
         self.advr_col_range = config['advr_col_range']
+
+        self.shape=config['shape']
         
     def make_world(self):
         world = World()
@@ -115,7 +117,7 @@ class Scenario(BaseScenario):
     def agent_reward(self, agent, world):
         # Agents are negatively rewarded if caught by adversaries
         rew = 0
-        shape = False
+        shape = self.shape
         adversaries = self.adversaries(world)
         if shape:  # reward can optionally be shaped (increased reward for increased distance from adversary)
             for adv in adversaries:
@@ -141,7 +143,7 @@ class Scenario(BaseScenario):
     def adversary_reward(self, agent, world):
         # Adversaries are rewarded for collisions with agents
         rew = 0
-        shape = False
+        shape = self.shape
         agents = self.good_agents(world)
         adversaries = self.adversaries(world)
         if shape:  # reward can optionally be shaped (decreased reward for increased distance from agents)

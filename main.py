@@ -10,37 +10,44 @@ from ddpg import DDPG
 from args import parameter_args
 from ou_noise import ouNoise
 from replay import Prioritized_Experience_Replay as PER
+from gym.spaces import Box
+import warnings
+warnings.filterwarnings("always")
 
-'''def train(env,args,ddpg,per,agent): 
-   
-    ddpg.policyUpdate(per)'''
-    
-
-        
-    
-
-def collect_experience(env,obs,args,agent_per,adversary_per,agent_ddpg,adversary_ddpg):
+def collect_experience(env,obs,args,agent_per,adversary_per,agent_ddpg,adversary_ddpg,agent_noise,adversary_noise,agent_scores,adversary_scores):
     count=0
     done=False
+    score_agent=0
+    score_adversary=0
     while (count<=args.timesteps)or (not done):
         actions={}
+        loss={}
         for key in obs:
             if(key.find('adversary') != -1):
                 temp=adversary_ddpg.get_actions(obs[key])
-                actions[key]=temp
+                temp=adversary_noise.add_noise(temp.detach().numpy(),timestep=count)
+                actions[key]=temp.astype(np.float32)
+
             else:
                 temp=agent_ddpg.get_actions(obs[key])
-                actions[key]=temp
+                temp=agent_noise.add_noise(temp.detach().numpy(),timestep=count)
+                actions[key]=temp.astype(np.float32)
 
         nex_obs, reward, done,_= env.step(actions)
-
+        #print("Reward",reward)
+        print(count)
+        loss=0
         for key in obs:
             if(key.find('adversary') != -1):
-                adversary_per.push(obs[key],actions[key],reward,nex_obs[key],done)
+                loss=adversary_ddpg.get_loss(obs[key],actions[key],nex_obs[key])
+                adversary_per.push(loss,obs[key],actions[key],reward[key],nex_obs[key],done)
+                score_agent
             else:
-                agent_per.push(obs[key],actions[key],reward,nex_obs[key],done)
+                loss=agent_ddpg.get_loss(obs[key],actions[key],nex_obs[key])
+                agent_per.push(loss,obs[key],actions[key],reward[key],nex_obs[key],done)
         obs=nex_obs
-
+        count+=1
+    #return score
 
 
 if __name__ == "__main__":
@@ -53,7 +60,11 @@ if __name__ == "__main__":
     adversary_per=PER(args.buffer_size_adversary,args.exp_alpha,args.batch_size)
     agent_ddpg=DDPG(num_states,num_actions,args)
     adversary_ddpg=DDPG(num_states,num_actions,args)
-    for i in range(args.epochs):
+    agent_noise=ouNoise(env.action_spaces['agent_0'],decay_steps=args.timesteps)
+    adversary_noise=ouNoise(env.action_spaces['adversary_0'],decay_steps=args.timesteps)
+    agent_scores=[]
+    adversary_scores=[]
+    for i in range(1):
         obs=env.reset()
         if(i%20==0) and (len(agent_per.buffer)>=args.batch_size):
             agent_ddpg.policyUpdate(agent_per)
@@ -64,4 +75,5 @@ if __name__ == "__main__":
             #train(env,args,adversary_ddpg,adversary_per)
             adversary_ddpg.saveModel()
         else:
-            collect_experience(env,obs,args,agent_per,adversary_per,agent_ddpg,adversary_ddpg)
+            collect_experience(env,obs,args,agent_per,adversary_per,agent_ddpg,adversary_ddpg,agent_noise,adversary_noise,agent_scores,adversary_scores)
+        

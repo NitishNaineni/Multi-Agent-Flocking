@@ -27,7 +27,7 @@ class DDPG:
         # Hyper-parameters
         self.batch_size = args.batch_size
         self.tau = args.tau
-        self.dist_factor = args.disc
+        self.dist_factor = args.disc_factor
         self.epsilon = 1.0
         self.criterion = nn.MSELoss()
         
@@ -73,8 +73,6 @@ class DDPG:
         self.softUpdate(self.target_actor,self.actor)
         self.softUpdate(self.target_critic,self.critic)
 
-        return 0
-
 
     def eval_network(self):
         self.critic.eval()
@@ -83,7 +81,7 @@ class DDPG:
         self.target_actor.eval()
 
     # Function for hard copying parameters of the main network to target network
-    def hardUpdate(target_net, model):
+    def hardUpdate(self,target_net, model):
         target_net.load_state_dict(model.state_dict())
         
 
@@ -107,9 +105,20 @@ class DDPG:
     
 
     def get_actions(self, obs):
-        actions = self.actor(obs)
+        actions = self.actor(torch.from_numpy(obs))
         return actions
 
     def get_q_value(self, obs, actions):
-        q_val = self.critic(obs. actions)
+        q_val = self.critic(obs,actions)
         return q_val
+
+    def get_loss(self,obs,action,next_obs):
+        with torch.no_grad():
+            self.critic.eval()
+            self.actor.eval()
+            q_val=self.critic(torch.from_numpy(obs),torch.from_numpy(action))
+            next_action=self.actor(torch.from_numpy(next_obs))
+            self.target_critic.eval()
+            target_q=self.target_critic(torch.from_numpy(next_obs),next_action)
+            loss=(target_q-q_val)**2
+        return loss

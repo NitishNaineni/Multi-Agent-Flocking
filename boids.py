@@ -16,7 +16,8 @@ parallel_env = parallel_wrapper_fn(env)
 
 config = {
     
-    "max_cycles" : 25,
+    "shape":True,
+    "max_cycles" : 10000,
     "num_good" : 3,
     "num_advr" : 1,
     "num_obst" : 2,
@@ -29,7 +30,7 @@ config = {
     "good_accel" : 4.0,
     
     "advr_max_speed" : 1.0,
-    "good_max_speed" : 1.3,
+    "good_max_speed" : 1.0,
     
     "good_color" : np.array([0.35, 0.85, 0.35]),
     "obst_color" : np.array([0.25, 0.25, 0.25]),
@@ -39,10 +40,10 @@ config = {
     "advr_spawn_range" : 1,
     "obst_spawn_range" : 0.9,
     
-    "observation_resolution" : 6,
+    "observation_resolution" : 72,
 
-    "good_col_range" : 1,
-    "advr_col_range" : 1
+    "good_col_range" : 0.25,
+    "advr_col_range" : 0.4
 
 }
 

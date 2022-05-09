@@ -4,7 +4,7 @@ CUDA : False
 
 # Training
 epoch: 5000
-timesteps: 100000
+timesteps: 10000
 batch_size: 256
 disc_factor: 0.99
 buffer_size_adversary: 500

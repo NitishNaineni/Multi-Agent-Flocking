@@ -23,7 +23,7 @@ class Actor(nn.Module):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         x = F.relu(self.fc3(x))
-        x = F.tanh(self.fc4(x))
+        x = torch.tanh(self.fc4(x))
 
         return x
 
@@ -36,15 +36,15 @@ class Critic(nn.Module):
         super().__init__()
 
         # Layers
-        self.fc1 = nn.Linear(n_obs, n_hNodes)
-        self.fc2 = nn.Linear(n_hNodes + n_actions, n_hNodes) # Introducing the actions in the hidden layer
+        self.fc1 = nn.Linear(n_obs+n_actions, n_hNodes)
+        self.fc2 = nn.Linear(n_hNodes, n_hNodes) # Introducing the actions in the hidden layer
         self.fc3 = nn.Linear(n_hNodes , n_hNodes)
         self.fc4 = nn.Linear(n_hNodes, 1)
         
     def forward(self, obs, action):
 
-        x = F.relu(self.fc1(obs))
-        x = torch.cat((x, action), 1)
+        x = torch.cat((obs, action), 0)
+        x = F.relu(self.fc1(x.float()))
         x = F.relu(self.fc2(x))
         x = F.relu(self.fc3(x))
         x = F.relu(self.fc4(x))

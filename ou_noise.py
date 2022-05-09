@@ -14,9 +14,9 @@ class ouNoise:
         self.max_sigma = max_sigma
         self.min_sigma = min_sigma
         self.decay_steps = decay_steps
-        self.n_env_actions = env_actions.spaces[0]
-        self.action_low = env_actions.spaces.low
-        self.action_high = env_actions.spaces.high
+        self.n_env_actions = env_actions.shape[0]
+        self.action_low = env_actions.low
+        self.action_high = env_actions.high-0.05
         self.reset()
 
     def reset(self):
