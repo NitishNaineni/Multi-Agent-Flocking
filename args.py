@@ -26,4 +26,4 @@ class parameter_args:
         self.max_sigma = args['max_sigma']
         self.min_sigma = args['min_sigma']
         self.decay_steps = args['decay_steps']
-
+        self.exp_alpha = args['exp_alpha']
