@@ -11,28 +11,15 @@ from args import parameter_args
 from ou_noise import ouNoise
 from replay import Prioritized_Experience_Replay as PER
 
-def train(env,agent): 
-    #per=PER() #parameters
-    if(agent=='agent'):
-        num_states=env.observation_spaces['agent_0'].shape[0]
-        num_actions=env.action_spaces['agent_0'].shape[0]
-        bound_above=env.action_spaces['agent_0'].high
-        bound_below=env.action_spaces['agent_0'].low
-    elif(agent=="adversary"):
-        num_states=env.observation_spaces['adversary_0'].shape[0]
-        num_actions=env.action_spaces['adversary_0'].shape[0]
-        bound_above=env.action_spaces['adversary_0'].high
-        bound_below=env.action_spaces['adversary_0'].low
-    ddpg=DDPG(num_states,num_actions,args,bound_above,bound_below)
-    for i in range(10):
-        score=0
-        obs=env.reset()
-        done=False
-        #while not done:
-            #torch.distributions.(probs=ddpg.actor(torch.from_numpy(obs).float()))
+'''def train(env,args,ddpg,per,agent): 
+   
+    ddpg.policyUpdate(per)'''
+    
+
+        
+    
 
 def collect_experience(env,obs,args,agent_per,adversary_per,agent_ddpg,adversary_ddpg):
-    #obs=env.observation_spaces
     count=0
     done=False
     while (count<=args.timesteps)or (not done):
@@ -69,8 +56,12 @@ if __name__ == "__main__":
     for i in range(args.epochs):
         obs=env.reset()
         if(i%20==0) and (len(agent_per.buffer)>=args.batch_size):
-            train(env,args,agent_ddpg,agent='agent')
+            agent_ddpg.policyUpdate(agent_per)
+            #train(env,args,agent_ddpg,agent_per)
+            agent_ddpg.saveModel()
         elif(i%21==0) and  (len(adversary_per.buffer)>=args.batch_size):
-            train(env,args,adversary_ddpg,agent='adversary')
+            adversary_ddpg.policyUpdate(adversary_per)
+            #train(env,args,adversary_ddpg,adversary_per)
+            adversary_ddpg.saveModel()
         else:
             collect_experience(env,obs,args,agent_per,adversary_per,agent_ddpg,adversary_ddpg)
