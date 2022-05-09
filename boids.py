@@ -23,12 +23,15 @@ class raw_env(SimpleEnv):
         if next_idx == 0:
             self._execute_world_step()
             self.steps += 1
-            for a in self.world.agents:
-                if max(abs(a.state.p_pos)) > 1:
-                    self.dones[a.name] = True
-                elif self.steps >= self.max_cycles:
-                    self.dones[a.name] = True
-            
+
+            terminate = False
+            for agent in self.world.agents:
+                if max(abs(agent.state.p_pos)) > 1:
+                    terminate = True
+
+            if self.steps >= self.max_cycles or terminate:
+                for a in self.agents:
+                    self.dones[a] = True   
         else:
             self._clear_rewards()
 
@@ -42,10 +45,10 @@ parallel_env = parallel_wrapper_fn(env)
 config = {
     
     "shape":True,
-    "max_cycles" : 100,
+    "max_cycles" : 1000,
     "num_good" : 3,
     "num_advr" : 1,
-    "num_obst" : 0,
+    "num_obst" : 1,
     
     "good_size" : 0.05,
     "advr_size" : 0.075,
@@ -55,7 +58,7 @@ config = {
     "good_accel" : 4.0,
     
     "advr_max_speed" : 1.0,
-    "good_max_speed" : 1.3,
+    "good_max_speed" : 1.0,
     
     "good_color" : np.array([0.35, 0.85, 0.35]),
     "obst_color" : np.array([0.25, 0.25, 0.25]),
