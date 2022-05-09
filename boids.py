@@ -40,10 +40,10 @@ config = {
     "advr_spawn_range" : 1,
     "obst_spawn_range" : 0.9,
     
-    "observation_resolution" : 6,
+    "observation_resolution" : 64,
 
-    "good_col_range" : 0.25,
-    "advr_col_range" : 0.4
+    "good_col_range" : 2,
+    "advr_col_range" : 2
 
 }
 

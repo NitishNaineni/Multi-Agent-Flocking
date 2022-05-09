@@ -39,7 +39,7 @@ def collect_experience(env,obs,args,agent_per,adversary_per,agent_ddpg,adversary
                 # actions[key] = np.clip(actions[key], env.action_space(key).low, env.action_space(key).high)
 
         nex_obs, reward, done,_= env.step(actions)
-        print(nex_obs)
+        # print(nex_obs)
         env.render()
         # print(actions)
         loss=0
