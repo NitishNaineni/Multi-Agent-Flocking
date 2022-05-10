@@ -10,33 +10,33 @@ class raw_env(SimpleEnv):
         super().__init__(scenario, world, config['max_cycles'], continuous_actions)
         self.metadata['name'] = "boids"
 
-    def step(self, action):
-        if self.dones[self.agent_selection]:
-            return self._was_done_step(action)
-        cur_agent = self.agent_selection
-        current_idx = self._index_map[self.agent_selection]
-        next_idx = (current_idx + 1) % self.num_agents
-        self.agent_selection = self._agent_selector.next()
+    # def step(self, action):
+    #     if self.dones[self.agent_selection]:
+    #         return self._was_done_step(action)
+    #     cur_agent = self.agent_selection
+    #     current_idx = self._index_map[self.agent_selection]
+    #     next_idx = (current_idx + 1) % self.num_agents
+    #     self.agent_selection = self._agent_selector.next()
 
-        self.current_actions[current_idx] = action
+    #     self.current_actions[current_idx] = action
 
-        if next_idx == 0:
-            self._execute_world_step()
-            self.steps += 1
+    #     if next_idx == 0:
+    #         self._execute_world_step()
+    #         self.steps += 1
 
-            terminate = False
-            for agent in self.world.agents:
-                if max(abs(agent.state.p_pos)) > 1:
-                    terminate = True
+    #         terminate = False
+    #         for agent in self.world.agents:
+    #             if max(abs(agent.state.p_pos)) > 1:
+    #                 terminate = True
 
-            if self.steps >= self.max_cycles or terminate:
-                for a in self.agents:
-                    self.dones[a] = True   
-        else:
-            self._clear_rewards()
+    #         if self.steps >= self.max_cycles or terminate:
+    #             for a in self.agents:
+    #                 self.dones[a] = True   
+    #     else:
+    #         self._clear_rewards()
 
-        self._cumulative_rewards[cur_agent] = 0
-        self._accumulate_rewards()
+    #     self._cumulative_rewards[cur_agent] = 0
+    #     self._accumulate_rewards()
 
 
 env = make_env(raw_env)
@@ -45,10 +45,10 @@ parallel_env = parallel_wrapper_fn(env)
 config = {
     
     "shape":True,
-    "max_cycles" : 1000,
-    "num_good" : 3,
+    "max_cycles" : 25,
+    "num_good" : 6,
     "num_advr" : 1,
-    "num_obst" : 1,
+    "num_obst" : 0,
     
     "good_size" : 0.05,
     "advr_size" : 0.075,

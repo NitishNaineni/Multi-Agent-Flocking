@@ -19,29 +19,37 @@ def collect_experience(env,obs,args,agent_per,adversary_per,agent_ddpg,adversary
     DONE=False
     score_agent=0
     score_adversary=0
+    done = env.aec_env.dones
+    # print(done)
     while not DONE:
         # print("Iteration Count ",count)
         actions={}
         loss={}
         for key in obs:
             if(key.find('adversary') != -1):
-                temp=adversary_ddpg.get_actions(obs[key])
-                # print("NN ", temp)
-                temp=temp.detach().numpy() + adversary_noise.add_noise()
-                # print("Noise ", temp)
-                actions[key]=temp.astype(np.float32)
-                actions[key] = np.clip(actions[key], env.action_space(key).low[0], env.action_space(key).high[0])
+                if done[key] == False:
+                    temp=adversary_ddpg.get_actions(obs[key])
+                    # print("NN ", temp)
+                    temp=temp.detach().numpy() + adversary_noise.add_noise()
+                    # print("Noise ", temp)
+                    actions[key]=temp.astype(np.float32)
+                    actions[key] = np.clip(actions[key], env.action_space(key).low[0], env.action_space(key).high[0])
+                else:
+                     actions[key] = None
 
             else:
-                temp=agent_ddpg.get_actions(obs[key])
-                temp=temp.detach().numpy() + agent_noise.add_noise()
-                actions[key]=temp.astype(np.float32)
-                actions[key] = np.clip(actions[key], env.action_space(key).low[0], env.action_space(key).high[0])
-                # actions[key] = np.array([1,0,0,0,1])
+                if done[key] == False:
+                    temp=agent_ddpg.get_actions(obs[key])
+                    temp=temp.detach().numpy() + agent_noise.add_noise()
+                    actions[key]=temp.astype(np.float32)
+                    actions[key] = np.clip(actions[key], env.action_space(key).low[0], env.action_space(key).high[0])
+                    # actions[key] = np.array([1,0,0,0,1])
+                else: 
+                    actions[key] = None
         nex_obs, reward, done,_= env.step(actions)
         # print(nex_obs)
         env.render()
-        # print(actions)
+        # print(actions['agent_0'])
         loss=0
         for key in obs:
             if(key.find('adversary') != -1):
@@ -58,7 +66,7 @@ def collect_experience(env,obs,args,agent_per,adversary_per,agent_ddpg,adversary
             DONE=True
     print("Adversary Reward ", score_adversary)
     print("Agent Reward",score_agent )
-    env.close()
+    # env.close()
     return score_agent,score_adversary
 
 
@@ -70,6 +78,7 @@ if __name__ == "__main__":
 
     num_actions=env.action_space('agent_0').shape[0]
     args=parameter_args()
+    
     agent_per=PER(args.buffer_size_agent,args.exp_alpha,args.batch_size)
     adversary_per=PER(args.buffer_size_adversary,args.exp_alpha,args.batch_size)
 
@@ -100,7 +109,7 @@ if __name__ == "__main__":
             adversary_ddpg.saveModel(name='adversary')
         
            
-        if train_count == 3:
+        if train_count == 10:
             train_agent = not train_agent
             train_count = 0
     env.close()

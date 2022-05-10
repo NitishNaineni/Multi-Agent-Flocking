@@ -10,7 +10,7 @@ class DDPG:
 
         self.n_actions = n_actions
         self.n_obs = n_obs
-        
+        self.beta = 0.4
         self.actor = Actor(self.n_obs, self.n_actions)
         self.target_actor = Actor(self.n_obs, self.n_actions)
         self.actor_optimizer = optim.Adam(self.actor.parameters(), lr= args.lr_actor)
@@ -60,22 +60,24 @@ class DDPG:
         # Calculating the critic loss
         # print(nn.MSELoss(q_values, target_q_values.detach()))
         critic_loss_mse =  nn.MSELoss()
-        critic_loss = critic_loss_mse(q_values, target_q_values.detach())/(avg_prob*buffer_size)
+        critic_loss = critic_loss_mse(q_values, target_q_values.detach())/(avg_prob*buffer_size)**self.beta
 
         # Critic network Update
         self.critic.zero_grad()
         critic_loss.backward()
+        nn.utils.clip_grad_norm_(self.critic.parameters(),  max_norm=5.0, norm_type=2)
         self.critic_optimizer.step()
         
         # Calculating the policy network loss
         policy_loss = -(self.critic(states_batch, self.actor(states_batch)))
         # policy_loss = self.critic(states_batch, self.actor(states_batch))
 
-        policy_loss = policy_loss.mean()/(avg_prob*buffer_size)
+        policy_loss = policy_loss.mean()/(avg_prob*buffer_size)**self.beta
 
         # Actor Network Update
         self.actor.zero_grad()
         policy_loss.backward()
+        nn.utils.clip_grad_norm_(self.actor.parameters(),  max_norm=5.0, norm_type=2)
         self.actor_optimizer.step()
 
 

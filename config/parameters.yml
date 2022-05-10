@@ -4,8 +4,8 @@ CUDA : False
 
 # Training
 epoch: 100000
-timesteps: 100
-batch_size: 256
+timesteps: 25
+batch_size: 1000
 disc_factor: 0.99
 buffer_size_adversary: 70000
 buffer_size_agent: 90000
@@ -16,10 +16,10 @@ epoch_val : 100
 
 # Neural Network
 architecture : "ddpg" #This can be PPO or DDPG
-actor_hn: 50
-critic_hn : 50
-lr_actor : 0.00001
-lr_critic: 0.0001
+actor_hn: 256
+critic_hn : 256
+lr_actor : 0.001
+lr_critic: 0.001
 alpha: 0.1
 
 # OU Noise
@@ -30,4 +30,5 @@ min_sigma: 0.3
 decay_steps: 50000
 
 #Experince Replay
-exp_alpha : 0.75 
+exp_alpha : 0.65
+
