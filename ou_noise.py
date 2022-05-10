@@ -1,7 +1,9 @@
 """ 
 Reference
-Github -  https://github.com/higgsfield/RL-Adventure-2/blob/master/5.ddpg.ipynb
-Wiki - https://en.wikipedia.org/wiki/Ornstein%E2%80%93Uhlenbeck_process
+1) Github -  https://github.com/higgsfield/RL-Adventure-2/blob/master/5.ddpg.ipynb
+2) Wiki - https://en.wikipedia.org/wiki/Ornstein%E2%80%93Uhlenbeck_process
+3) Github - https://github.com/camellyx/10707-deep-learning-project/blob/71006efceebd4d64bff4dd5ed18e3bc004fc0678/multiagent-particle-envs/ornstein_uhlenbeck.py
+
  """
 
 import numpy as np
