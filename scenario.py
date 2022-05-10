@@ -120,8 +120,14 @@ class Scenario(BaseScenario):
         shape = self.shape
         adversaries = self.adversaries(world)
         if shape:  # reward can optionally be shaped (increased reward for increased distance from adversary)
-            for adv in adversaries:
-                rew += 0.1 * np.sqrt(np.sum(np.square(agent.state.p_pos - adv.state.p_pos)))
+            # for adv in adversaries:
+            #     rew += 0.1 * np.sqrt(np.sum(np.square(agent.state.p_pos - adv.state.p_pos)))
+            # rew += 0.1 * min(np.sqrt(np.sum(np.square(a.state.p_pos - agent.state.p_pos))) for a in adversaries)
+            proxmy_dist = min(np.sqrt(np.sum(np.square(a.state.p_pos - agent.state.p_pos))) for a in adversaries)
+            if proxmy_dist < 0.1:
+                rew -= 10
+            else:
+                rew = +1
         if agent.collide:
             for a in adversaries:
                 if self.is_collision(a, agent):
@@ -147,13 +153,19 @@ class Scenario(BaseScenario):
         agents = self.good_agents(world)
         adversaries = self.adversaries(world)
         if shape:  # reward can optionally be shaped (decreased reward for increased distance from agents)
-            for adv in adversaries:
-                rew -= 0.1 * min(np.sqrt(np.sum(np.square(a.state.p_pos - adv.state.p_pos))) for a in agents)
+            # for adv in adversaries:
+            # rew += 0.1 * min(np.sqrt(np.sum(np.square(a.state.p_pos - agent.state.p_pos))) for a in agents)
+            # rew += 0.1 * 0.15
+            proxmy_dist = min(np.sqrt(np.sum(np.square(a.state.p_pos - agent.state.p_pos))) for a in agents)
+            if proxmy_dist <= 0.15:
+                rew += 5
+            else: 
+                rew -= 20
         if agent.collide:
             for ag in agents:
                 for adv in adversaries:
                     if self.is_collision(ag, adv):
-                        rew += 50
+                        rew +=200
         def bound(x):
             if x < 0.9:
                 return 0

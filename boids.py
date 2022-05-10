@@ -45,9 +45,9 @@ parallel_env = parallel_wrapper_fn(env)
 config = {
     
     "shape":True,
-    "max_cycles" : 25,
-    "num_good" : 6,
-    "num_advr" : 1,
+    "max_cycles" : 100,
+    "num_good" : 9,
+    "num_advr" : 3,
     "num_obst" : 0,
     
     "good_size" : 0.05,

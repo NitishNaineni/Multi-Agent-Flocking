@@ -4,12 +4,12 @@ CUDA : False
 
 # Training
 epoch: 100000
-timesteps: 25
-batch_size: 1000
+timesteps: 250
+batch_size: 1024
 disc_factor: 0.99
-buffer_size_adversary: 70000
-buffer_size_agent: 90000
-tau : 0.001
+buffer_size_adversary: 37500
+buffer_size_agent: 112500
+tau : 0.1
 
 # Validation
 epoch_val : 100

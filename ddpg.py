@@ -65,7 +65,7 @@ class DDPG:
         # Critic network Update
         self.critic.zero_grad()
         critic_loss.backward()
-        nn.utils.clip_grad_norm_(self.critic.parameters(),  max_norm=5.0, norm_type=2)
+        # nn.utils.clip_grad_norm_(self.critic.parameters(),  max_norm=5.0, norm_type=2)
         self.critic_optimizer.step()
         
         # Calculating the policy network loss
@@ -77,7 +77,7 @@ class DDPG:
         # Actor Network Update
         self.actor.zero_grad()
         policy_loss.backward()
-        nn.utils.clip_grad_norm_(self.actor.parameters(),  max_norm=5.0, norm_type=2)
+        # nn.utils.clip_grad_norm_(self.actor.parameters(),  max_norm=5.0, norm_type=2)
         self.actor_optimizer.step()
 
 
