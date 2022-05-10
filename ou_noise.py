@@ -1,3 +1,7 @@
+
+'''I / we certify that the code and data in this assignment were generated independently, using only the tools
+and resources defined in the course and that I/we did not receive any external help, coaching, or contributions
+during the production of this work.'''
 """ 
 Reference
 1) Github -  https://github.com/higgsfield/RL-Adventure-2/blob/master/5.ddpg.ipynb
