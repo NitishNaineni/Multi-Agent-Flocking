@@ -49,8 +49,8 @@ config = {
     
     "shape":True,
     "max_cycles" : 100,
-    "num_good" : 9,
-    "num_advr" : 3,
+    "num_good" : 5,
+    "num_advr" : 2,
     "num_obst" : 0,
     
     "good_size" : 0.05,

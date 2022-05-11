@@ -131,6 +131,7 @@ class Scenario(BaseScenario):
             #     rew -= 10
             # else:
             #     rew = +1
+            rew -= 2*(0.5 - np.sqrt(np.square(agent.state.p_vel).sum()))
         if agent.collide:
             for a in adversaries:
                 if self.is_collision(a, agent):
@@ -143,7 +144,7 @@ class Scenario(BaseScenario):
             if x < 1.0:
                 return (x - 0.9) * 10
             return min(np.exp(2 * x - 2), 10)
-            
+
         for p in range(world.dim_p):
             x = abs(agent.state.p_pos[p])
             rew -= bound(x)
@@ -167,8 +168,7 @@ class Scenario(BaseScenario):
                     closest = (distance,a)
             direction = closest[1].state.p_pos - agent.state.p_pos
             rew += np.dot(direction, agent.state.p_vel)/(np.linalg.norm(direction)*np.linalg.norm(agent.state.p_vel))
-            print(rew)
-
+            rew -= 2*(0.5 - np.sqrt(np.square(agent.state.p_vel).sum()))
         if agent.collide:
             for ag in agents:
                 for adv in adversaries:
