@@ -125,16 +125,16 @@ class Scenario(BaseScenario):
         if shape:  # reward can optionally be shaped (increased reward for increased distance from adversary)
             # for adv in adversaries:
             #     rew += 0.1 * np.sqrt(np.sum(np.square(agent.state.p_pos - adv.state.p_pos)))
-            # rew += 0.1 * min(np.sqrt(np.sum(np.square(a.state.p_pos - agent.state.p_pos))) for a in adversaries)
-            proxmy_dist = min(np.sqrt(np.sum(np.square(a.state.p_pos - agent.state.p_pos))) for a in adversaries)
-            if proxmy_dist < 0.1:
-                rew -= 10
-            else:
-                rew = +1
+            rew += 0.1 * min(np.sqrt(np.sum(np.square(a.state.p_pos - agent.state.p_pos))) for a in adversaries)
+            # proxmy_dist = min(np.sqrt(np.sum(np.square(a.state.p_pos - agent.state.p_pos))) for a in adversaries)
+            # if proxmy_dist < 0.1:
+            #     rew -= 10
+            # else:
+            #     rew = +1
         if agent.collide:
             for a in adversaries:
                 if self.is_collision(a, agent):
-                    rew -= 50
+                    rew -= 10
 
         # agents are penalized for exiting the screen, so that they can be caught by the adversaries
         def bound(x):
@@ -143,6 +143,7 @@ class Scenario(BaseScenario):
             if x < 1.0:
                 return (x - 0.9) * 10
             return min(np.exp(2 * x - 2), 10)
+            
         for p in range(world.dim_p):
             x = abs(agent.state.p_pos[p])
             rew -= bound(x)
@@ -159,26 +160,20 @@ class Scenario(BaseScenario):
             # for adv in adversaries:
             # rew += 0.1 * min(np.sqrt(np.sum(np.square(a.state.p_pos - agent.state.p_pos))) for a in agents)
             # rew += 0.1 * 0.15
-            proxmy_dist = min(np.sqrt(np.sum(np.square(a.state.p_pos - agent.state.p_pos))) for a in agents)
-            if proxmy_dist <= 0.15:
-                rew += 5
-            else: 
-                rew -= 20
+            closest = (float('inf'),None)
+            for a in agents:
+                distance = np.sqrt(np.sum(np.square(a.state.p_pos - agent.state.p_pos)))
+                if distance < closest[0]:
+                    closest = (distance,a)
+            direction = closest[1].state.p_pos - agent.state.p_pos
+            rew += np.dot(direction, agent.state.p_vel)/(np.linalg.norm(direction)*np.linalg.norm(agent.state.p_vel))
+            print(rew)
+
         if agent.collide:
             for ag in agents:
                 for adv in adversaries:
                     if self.is_collision(ag, adv):
-                        rew +=200
-        def bound(x):
-            if x < 0.9:
-                return 0
-            if x < 1.0:
-                return (x - 0.9) * 10
-            return min(np.exp(2 * x - 2), 10)
-        for p in range(world.dim_p):
-            x = abs(agent.state.p_pos[p])
-            rew -= bound(x)
-
+                        rew +=10
 
         return rew
     
